@@ -3,10 +3,10 @@
 mod bunny;
 mod data;
 mod hud;
-mod init;
+mod game_start;
+mod game_loop;
 mod state;
-
-use init::{init};
+mod config;
 
 use cfg_if::cfg_if;
 use log::{info, Level};
@@ -48,10 +48,5 @@ pub fn run() -> Result<(), JsValue> {
     init_log();
 
     info!("logging enabled!");
-
-    let window = web_sys::window().ok_or("should have a Window")?;
-    let document = window.document().ok_or("should have a Document")?;
-    let body = document.body().ok_or("should have a Body")?;
-
-    init(window, document, body)
+    game_start::start()
 }

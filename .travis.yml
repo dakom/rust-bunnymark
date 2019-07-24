@@ -1,0 +1,31 @@
+dist: bionic
+language: rust
+rust: 
+    - nightly
+  
+install:
+    - curl -s https://api.github.com/repos/WebAssembly/binaryen/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | xargs -I {} wget -c https://github.com/WebAssembly/binaryen/releases/latest/download/binaryen-{}-x86_64-linux.tar.gz -O binaryen.tgz
+    - mkdir binaryen && tar -zxvf ./binaryen.tgz -C binaryen --strip-components 1
+    - export PATH=./binaryen:$PATH
+    - rustup target add wasm32-unknown-unknown
+    - cargo install wasm-bindgen-cli
+    - npm ci
+
+script:
+    - cd crate
+    - cargo test
+    - cd ..
+  
+after_success:
+    - npm run bundle:ci
+    - mkdir dist
+    - cp -R site/* dist/
+    - cp -R crate/pkg dist/
+
+deploy:
+    local_dir: dist
+    provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+    on:
+        branch: master
