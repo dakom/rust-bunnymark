@@ -1,0 +1,32 @@
+{
+    "author": "David Komer <david.komer@gmail.com>",
+    "name": "rust_bunnymark",
+    "version": "0.1.0",
+    "repository": "https://github.com/dakom/rust-bunnymark",
+    "license": "(MIT OR Apache-2.0)",
+    "scripts": {
+        "clean": "rimraf ./deploy && rimraf ./dist rimraf ./crate/pkg && rimraf ./crate/target",
+        "start": "npm run _rust:build:dev && npm-run-all -p _dev:browsersync _dev:watchrust:warnings-off",
+        "bundle": "npm run clean && npm run _bundle:site:basic && npm run _bundle:app",
+        "_dev:browsersync": "browser-sync start --server \"site\" --single --serveStatic \"crate\" --files \"site/**/*\" \"crate/pkg/**/*.wasm\"",
+        "_dev:watchrust:warnings-off": "watchexec -w crate/src npm run _rust:build:dev:nowarnings",
+        "_dev:watchrust:warnings-on": "watchexec -w crate/src npm run _rust:build:dev",
+        "_bundle:app": "npm run clean:build && npm run _rust:build:release:app && npm run _bundle:site:app",
+        "_bundle:site:basic": "cpy **/* ../../deploy/media --cwd=site/media --parents && cpy _redirects ../deploy --cwd=site && cpy *.css ../deploy --cwd=site",
+        "_bundle:site:app": "cpy **/* ../../deploy/pkg --cwd=crate/pkg && cpy **/*.css ../deploy --cwd=site --parents && cpy index.html ../deploy/app --cwd=site",
+        "_rust:build:release:app": "cargo +nightly build --target wasm32-unknown-unknown --release --manifest-path crate/Cargo.toml && npm run _rust:bindgen:release && npm run _rust:opt",
+        "_rust:bindgen:release": "wasm-bindgen crate/target/wasm32-unknown-unknown/release/rust_bunnymark.wasm --target web --out-dir crate/pkg",
+        "_rust:opt": "wasm-opt -Os -o ./crate/pkg/rust_bunnymark_bg.wasm ./crate/pkg/rust_bunnymark_bg.wasm",
+        "_rust:build:dev:nowarnings": "cross-env RUSTFLAGS=\"-A warnings\" cargo +nightly build --features dev --target wasm32-unknown-unknown --manifest-path crate/Cargo.toml && npm run _rust:bindgen:dev",
+        "_rust:build:dev": "cargo +nightly build --features dev --target wasm32-unknown-unknown --manifest-path crate/Cargo.toml && npm run _rust:bindgen:dev",
+        "_rust:bindgen:dev": "wasm-bindgen crate/target/wasm32-unknown-unknown/debug/rust_bunnymark.wasm --target web --out-dir crate/pkg"
+    },
+    "devDependencies": {
+        "browser-sync": "^2.26.7",
+        "cpy": "^7.2.0",
+        "cpy-cli": "^2.0.0",
+        "cross-env": "^5.2.0",
+        "npm-run-all": "^4.1.5",
+        "rimraf": "^2.6.3"
+    }
+}
