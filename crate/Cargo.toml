@@ -19,7 +19,7 @@ js-sys = "0.3.25"
 wasm-bindgen-futures= { version = "0.3.25", features = ["futures_0_3"] }
 futures-preview = { version = "=0.3.0-alpha.16", features = ["async-await", "nightly"] }
 gloo-events = { git = "https://github.com/rustwasm/gloo" }
-awsm = "0.0.5" 
+awsm = "0.0.6" 
 
 # logging is only enabled for debug builds
 cfg-if = "0.1"

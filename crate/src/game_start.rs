@@ -12,6 +12,7 @@ use web_sys::{Window, Document, HtmlElement, HtmlCanvasElement};
 use wasm_bindgen::prelude::{JsValue};
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::futures_0_3::future_to_promise;
+use awsm::window::{get_window_size};
 use awsm::loaders::fetch;
 use awsm::webgl::{
     get_webgl_context_1, 
@@ -63,7 +64,7 @@ pub fn start() -> Result<(), JsValue> {
             let renderer = Rc::clone(&renderer);
             let state = Rc::clone(&state);
             move |_: &web_sys::Event| {
-                let (width, height) = awsm::window::get_size(&window).unwrap();
+                let (width, height) = get_window_size(&window).unwrap();
                 renderer.borrow_mut().resize(width, height);
                 state.borrow_mut().resize(width, height);
             }

@@ -3,7 +3,7 @@ use super::data::{Area};
 use super::config::{N_BUNNIES_PER_TICK};
 
 use awsm::webgl::{
-    get_size,
+    get_texture_size,
     WebGlTextureSource
 };
 
@@ -19,8 +19,7 @@ pub struct State {
 impl State {
     pub fn new(img:&web_sys::HtmlImageElement) -> Self {
 
-        //TODO - rename in awsm to get_texture_size()
-        let (img_width, img_height, _) = get_size(&WebGlTextureSource::ImageElement(&img));
+        let (img_width, img_height, _) = get_texture_size(&WebGlTextureSource::ImageElement(&img));
 
         Self { 
             fps: 0, 
