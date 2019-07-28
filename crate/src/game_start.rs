@@ -2,6 +2,7 @@ use super::state::{State};
 use super::hud::{Hud};
 use super::config::{get_media_href};
 use super::game_loop::{begin_loop};
+use super::renderer::SceneRenderer;
 
 use log::{info};
 use gloo_events::EventListener;
@@ -37,7 +38,8 @@ pub fn start() -> Result<(), JsValue> {
         let vertex = fetch::text(&get_media_href("vertex.glsl")).await?;
         let fragment = fetch::text(&get_media_href("fragment.glsl")).await?;
 
-        let state = Rc::new(RefCell::new(State::new()));
+
+        let state = Rc::new(RefCell::new(State::new(&bunny_img)));
 
         body.remove_child(&loading)?;
         let canvas: HtmlCanvasElement = document.create_element("canvas")?.dyn_into()?;
@@ -53,6 +55,8 @@ pub fn start() -> Result<(), JsValue> {
         }))?;
 
         let renderer = WebGl1Renderer::new(gl).map(|r| Rc::new(RefCell::new(r)))?;
+
+        let scene_renderer = SceneRenderer::new(Rc::clone(&renderer), &vertex, &fragment, &bunny_img)?;
 
         let mut on_resize = {
             let window = window.clone();
@@ -79,7 +83,8 @@ pub fn start() -> Result<(), JsValue> {
             ]);
         }
 
-        begin_loop(renderer, state, hud)?;
+
+        begin_loop(&window, &document, &renderer.borrow().canvas, scene_renderer, state, hud)?;
 
         Ok(JsValue::null())
     };

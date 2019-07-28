@@ -7,6 +7,8 @@ mod game_start;
 mod game_loop;
 mod state;
 mod config;
+mod renderer;
+mod fps;
 
 use cfg_if::cfg_if;
 use log::{info, Level};
