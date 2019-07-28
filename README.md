@@ -2,9 +2,7 @@
 
 # What is it?
 
-A Rust/WASM/WebGL bunny bouncing test, for comparing to [PIXI](https://www.goodboydigital.com/pixijs/bunnymark/)
-
-Uses [awsm](http://github.com/dakom/awsm/) for the wasm/webgl bridge
+A Rust/WASM/WebGL bunny bouncing test, built on [awsm](http://github.com/dakom/awsm/), for comparing to [PIXI](https://www.goodboydigital.com/pixijs/bunnymark/)
 
 # How to start?
 
