@@ -9,7 +9,7 @@ use std::rc::{Rc};
 use std::cell::{RefCell};
 use gloo_events::{EventListener};
 use log::{info};
-use web_sys::{Window, Document, EventTarget, Performance};
+use web_sys::{Window, Document, EventTarget, Event};
 
 use awsm::tick::{RafLoop};
 use awsm::webgl::{
@@ -25,7 +25,7 @@ pub fn begin_loop(window:&Window, document:&Document, canvas:&EventTarget, mut r
     //input callbacks
     let on_mouse_down = {
         let state = Rc::clone(&state);
-        move |_:&_| {
+        move || {
             info!("mouse down");
             let mut state = state.borrow_mut();
             state.adding_bunnies = true;
@@ -34,7 +34,7 @@ pub fn begin_loop(window:&Window, document:&Document, canvas:&EventTarget, mut r
 
     let on_mouse_release = {
         let state = Rc::clone(&state);
-        move |_:&_| {
+        move || {
             info!("mouse release");
             let mut state = state.borrow_mut();
             state.adding_bunnies = false;
@@ -67,8 +67,38 @@ pub fn begin_loop(window:&Window, document:&Document, canvas:&EventTarget, mut r
 
 
     //end of the line! gotta keep these things in memory...
-    EventListener::new(&canvas, "mousedown", on_mouse_down).forget();
-    EventListener::new(&document, "mouseup", on_mouse_release).forget();
+    //listening to touch and mouse: https://stackoverflow.com/a/31210694/784519
+    EventListener::new(&canvas, "touchstart", {
+        let on_mouse_down = on_mouse_down.clone();
+        move |e:&Event| {
+            e.prevent_default();
+            on_mouse_down();
+        }
+    }).forget();
+
+    EventListener::new(&canvas, "mousedown", {
+        let on_mouse_down = on_mouse_down.clone();
+        move |e:&Event| {
+            e.prevent_default();
+            on_mouse_down();
+        }
+    }).forget();
+
+    EventListener::new(&canvas, "touchend", {
+        let on_mouse_release = on_mouse_release.clone();
+        move |e:&Event| {
+            e.prevent_default();
+            on_mouse_release();
+        }
+    }).forget();
+
+    EventListener::new(&canvas, "mouseup", {
+        let on_mouse_release = on_mouse_release.clone();
+        move |e:&Event| {
+            e.prevent_default();
+            on_mouse_release();
+        }
+    }).forget();
 
     std::mem::forget(Box::new(tick));
 
