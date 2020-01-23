@@ -98,9 +98,6 @@ jobs:
         name: _static 
         path: _static
 
-    - name: list debug
-      run: ls -la dist
-
     - name: deploy to gh_pages
       uses: maxheld83/ghpages@master
       env:
