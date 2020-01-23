@@ -101,5 +101,5 @@ jobs:
     - name: deploy to gh_pages
       uses: maxheld83/ghpages@master
       env:
-        BUILD_DIR: "dist/"
+        BUILD_DIR: "_static/"
         GH_PAT: ${{ secrets.GH_PAT }}
