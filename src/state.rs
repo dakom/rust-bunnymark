@@ -2,7 +2,7 @@ use super::bunny::{Bunny};
 use super::data::{Area};
 use super::config::{N_BUNNIES_PER_TICK};
 
-use awsm::webgl::{
+use awsm_web::webgl::{
     get_texture_size,
     WebGlTextureSource
 };
@@ -51,7 +51,7 @@ impl State {
     }
 
     pub fn update(&mut self) {
-        for (instance_idx, mut bunny) in self.bunnies.iter_mut().enumerate() {
+        for (instance_idx, bunny) in self.bunnies.iter_mut().enumerate() {
             //update bunny positions
             bunny.update(self.stage_size, self.img_size);
 

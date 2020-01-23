@@ -4,7 +4,6 @@ use wasm_bindgen::JsCast;
 use wasm_bindgen::prelude::{JsValue};
 
 pub struct Hud {
-    container:HtmlElement,
     num_bunnies:HtmlElement,
     fps:HtmlElement,
 }
@@ -26,7 +25,7 @@ impl Hud {
         fps.set_text_content(Some(""));
         container.append_child(&fps)?;
 
-        Ok(Self{ container, num_bunnies, fps })
+        Ok(Self{ num_bunnies, fps })
     }
 
     pub fn update(&self, state:&State) {

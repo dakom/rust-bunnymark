@@ -1,6 +1,5 @@
 use super::data::{Point, Area};
 use rand::prelude::*;
-use log::{info};
 
 const START_GRAVITY:f64 = 0.75;
 
@@ -19,7 +18,7 @@ impl Bunny {
         speed.y = (speed.y * 10.0) - 5.0;
 
         //alternate between corners
-        let pos_x = match (count % 2) {
+        let pos_x = match count % 2 {
             0 => 0.0f64,
             _ => (stage_size.width - img_size.width) as f64
         };

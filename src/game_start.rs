@@ -4,25 +4,23 @@ use super::config::{get_media_href};
 use super::game_loop::{begin_loop};
 use super::renderer::SceneRenderer;
 
-use log::{info};
 use gloo_events::EventListener;
 use std::rc::{Rc};
 use std::cell::{RefCell};
-use web_sys::{Window, Document, HtmlElement, HtmlCanvasElement};
-use wasm_bindgen::prelude::{JsValue};
+use web_sys::{HtmlElement, HtmlCanvasElement};
+use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use wasm_bindgen_futures::futures_0_3::future_to_promise;
-use awsm::window::{get_window_size};
-use awsm::loaders::fetch;
-use awsm::webgl::{
+use wasm_bindgen_futures::future_to_promise;
+use awsm_web::window::{get_window_size};
+use awsm_web::loaders::fetch;
+use awsm_web::webgl::{
     get_webgl_context_1, 
     WebGlContextOptions, 
     ClearBufferMask,
-    WebGlCommon,
     WebGl1Renderer
 };
 
-pub fn start() -> Result<(), JsValue> {
+pub fn start() -> Result<js_sys::Promise, JsValue> {
 
     let window = web_sys::window().ok_or("should have a Window")?;
     let document = window.document().ok_or("should have a Document")?;
@@ -59,7 +57,7 @@ pub fn start() -> Result<(), JsValue> {
 
         let scene_renderer = SceneRenderer::new(Rc::clone(&renderer), &vertex, &fragment, &bunny_img)?;
 
-        let mut on_resize = {
+        let on_resize = {
             let window = window.clone();
             let renderer = Rc::clone(&renderer);
             let state = Rc::clone(&state);
@@ -85,14 +83,12 @@ pub fn start() -> Result<(), JsValue> {
         }
 
 
-        begin_loop(&window, &document, &renderer.borrow().canvas, scene_renderer, state, hud)?;
+        begin_loop(&window, &renderer.borrow().canvas, scene_renderer, state, hud)?;
 
         Ok(JsValue::null())
     };
 
-    future_to_promise(future);
-
-    Ok(())
+    Ok(future_to_promise(future))
 }
 
 

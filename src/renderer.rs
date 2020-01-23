@@ -1,16 +1,14 @@
-use super::data::{Area, QUAD_GEOM_UNIT};
-use super::bunny::{Bunny};
+use super::data::{QUAD_GEOM_UNIT};
 use super::state::{State};
 
 use std::rc::Rc;
 use std::cell::RefCell;
 
 use web_sys::{HtmlImageElement};
-use nalgebra::{Matrix4, Point2, Vector3};
+use nalgebra::{Matrix4, Vector3};
 
-use awsm::webgl::{
+use awsm_web::webgl::{
     ClearBufferMask,
-    WebGlCommon,
     WebGl1Renderer,
     AttributeOptions,
     BufferData,
@@ -26,7 +24,6 @@ use awsm::webgl::{
     GlToggle,
     BlendFactor,
 };
-use awsm::errors::Error;
 
 pub struct SceneRenderer {
     renderer: Rc<RefCell<WebGl1Renderer>>,
@@ -35,12 +32,11 @@ pub struct SceneRenderer {
 
 struct SceneIds {
     program_id: Id,
-    geom_id: Id,
     texture_id: Id,
     instance_id: Id,
 }
 impl SceneRenderer {
-    pub fn new (webgl_renderer:Rc<RefCell<WebGl1Renderer>>, vertex:&str, fragment:&str, img:&HtmlImageElement) -> Result<Self, Error> {
+    pub fn new (webgl_renderer:Rc<RefCell<WebGl1Renderer>>, vertex:&str, fragment:&str, img:&HtmlImageElement) -> Result<Self, awsm_web::errors::Error> {
         let ids = {
             let mut renderer = webgl_renderer.borrow_mut();
             //This demo is specifically using webgl1, which needs to register the extension
@@ -79,20 +75,20 @@ impl SceneRenderer {
             //create an instance buffer and get the id
             let instance_id = renderer.create_buffer()?;
 
-            SceneIds {program_id, geom_id, texture_id, instance_id }
+            SceneIds {program_id, texture_id, instance_id }
         };
 
         Ok(Self { renderer: webgl_renderer, ids} )
     }
 
-    pub fn render(&mut self, state:&State) -> Result<(), Error> {
+    pub fn render(&mut self, state:&State) -> Result<(), awsm_web::errors::Error> {
         //if no bunnies, skip rendering
         if state.bunnies.len() == 0 {
             return Ok(())
         }
 
         let mut renderer = self.renderer.borrow_mut();
-        let SceneIds {program_id, texture_id, instance_id, geom_id } = self.ids;
+        let SceneIds {program_id, texture_id, instance_id, ..} = self.ids;
 
 
         //Clear the screen buffers
