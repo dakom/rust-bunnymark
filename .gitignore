@@ -79,7 +79,6 @@ fabric.properties
 .wasm
 target
 pkg
-Cargo.lock
 **/*.rs.bk
 
 # node
