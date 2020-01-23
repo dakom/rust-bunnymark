@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/dakom/rust-bunnymark.svg?branch=master)](https://travis-ci.org/dakom/rust-bunnymark)
+[![Build Status](https://github.com/dakom/rust-bunnymark/workflows/Test%2C%20Build%2C%20and%20Deploy/badge.svg)](https://github.com/dakom/rust-bunnymark/actions)
 
 # What is it?
 
