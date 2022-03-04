@@ -1,6 +1,8 @@
 name: Test, Build, and Deploy 
 
-on: [push]
+on:
+  push:
+    branches: [ master ]
 
 jobs:
   bundle:
