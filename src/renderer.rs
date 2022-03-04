@@ -8,7 +8,7 @@ use web_sys::{HtmlImageElement};
 use nalgebra::{Matrix4, Vector3};
 
 use awsm_web::webgl::{
-    ClearBufferMask,
+    BufferMask,
     WebGl1Renderer,
     AttributeOptions,
     BufferData,
@@ -23,6 +23,7 @@ use awsm_web::webgl::{
     BeginMode,
     GlToggle,
     BlendFactor,
+    ShaderType,
 };
 
 pub struct SceneRenderer {
@@ -44,12 +45,14 @@ impl SceneRenderer {
             renderer.register_extension_instanced_arrays()?;
 
             //compile the shaders and get a program id
-            let program_id = renderer.compile_program(vertex, fragment)?;
+            let vertex_id = renderer.compile_shader(vertex, ShaderType::Vertex)?;
+            let fragment_id = renderer.compile_shader(fragment, ShaderType::Fragment)?;
+            let program_id = renderer.compile_program(&[vertex_id, fragment_id])?;
 
             //create quad data and get a buffer id
             let geom_id = renderer.create_buffer()?;
 
-            renderer.upload_buffer_to_attribute(
+            renderer.upload_buffer_to_attribute_name(
                 geom_id,
                 BufferData::new(
                     &QUAD_GEOM_UNIT,
@@ -93,8 +96,8 @@ impl SceneRenderer {
 
         //Clear the screen buffers
         renderer.clear(&[
-                ClearBufferMask::ColorBufferBit,
-                ClearBufferMask::DepthBufferBit,
+                BufferMask::ColorBufferBit,
+                BufferMask::DepthBufferBit,
         ]);
 
         //set blend mode. this will be a noop internally if already set
@@ -106,19 +109,19 @@ impl SceneRenderer {
         renderer.activate_program(program_id)?;
 
         //enable texture
-        renderer.activate_texture_for_sampler(texture_id, "u_sampler")?;
+        renderer.activate_texture_for_sampler_name(texture_id, "u_sampler")?;
 
         //Build our matrices (must cast to f32)
         let scaling_mat = Matrix4::new_nonuniform_scaling(&Vector3::new(state.img_size.width as f32, state.img_size.height as f32, 0.0));
         let camera_mat = Matrix4::new_orthographic( 0.0, state.stage_size.width as f32, 0.0, state.stage_size.height as f32, 0.0, 1.0);
 
         //Upload them to the GPU
-        renderer.upload_uniform_mat_4("u_size", &scaling_mat.as_slice())?;
-        renderer.upload_uniform_mat_4("u_camera", &camera_mat.as_slice())?;
+        renderer.upload_uniform_mat_4_name("u_size", &scaling_mat.as_slice())?;
+        renderer.upload_uniform_mat_4_name("u_camera", &camera_mat.as_slice())?;
 
 
     //need the location for the attrib_divisor below
-        let loc = renderer.get_attribute_location_value("a_position")?;
+        let loc = renderer.get_attribute_location_name("a_position")?;
         renderer.upload_buffer( instance_id, BufferData::new(
                 &state.instance_positions,
                 BufferTarget::ArrayBuffer,

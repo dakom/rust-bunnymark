@@ -12,11 +12,12 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::future_to_promise;
 use awsm_web::window::{get_window_size};
-use awsm_web::loaders::fetch;
+use awsm_web::loaders::{fetch::fetch_url, image};
 use awsm_web::webgl::{
+    BufferMask,
+    ResizeStrategy,
     get_webgl_context_1, 
     WebGlContextOptions, 
-    ClearBufferMask,
     WebGl1Renderer
 };
 
@@ -33,9 +34,9 @@ pub fn start() -> Result<js_sys::Promise, JsValue> {
 
 
     let future = async move {
-        let bunny_img = fetch::image(&get_media_href("bunny.png")).await?;
-        let vertex = fetch::text(&get_media_href("vertex.glsl")).await?;
-        let fragment = fetch::text(&get_media_href("fragment.glsl")).await?;
+        let bunny_img = image::load(get_media_href("bunny.png")).await?;
+        let vertex = fetch_url(&get_media_href("vertex.glsl")).await?.text().await?;
+        let fragment = fetch_url(&get_media_href("fragment.glsl")).await?.text().await?;
 
 
         let state = Rc::new(RefCell::new(State::new(&bunny_img)));
@@ -63,7 +64,7 @@ pub fn start() -> Result<js_sys::Promise, JsValue> {
             let state = Rc::clone(&state);
             move |_: &web_sys::Event| {
                 let (width, height) = get_window_size(&window).unwrap();
-                renderer.borrow_mut().resize(width, height);
+                renderer.borrow_mut().resize(ResizeStrategy::All(width, height));
                 state.borrow_mut().resize(width, height);
             }
         };
@@ -77,8 +78,8 @@ pub fn start() -> Result<js_sys::Promise, JsValue> {
 
             renderer.gl.clear_color(0.3, 0.3, 0.3, 1.0);
             renderer.clear(&[
-                ClearBufferMask::ColorBufferBit,
-                ClearBufferMask::DepthBufferBit,
+                BufferMask::ColorBufferBit,
+                BufferMask::DepthBufferBit,
             ]);
         }
 

@@ -11,27 +11,28 @@ lto = true
 opt-level = 's'
 
 [dependencies]
-rand = { version = "0.7.3", features = ["wasm-bindgen"] }
-nalgebra = "0.19.0"
-wasm-bindgen = "0.2.58"
-js-sys = "0.3.35"
-wasm-bindgen-futures= "0.4.8"
+rand = "0.8.5"
+getrandom = { version = "0.2.5", features = ["js"] }
+nalgebra = "0.30.1"
+wasm-bindgen = "0.2.79"
+js-sys = "0.3.56"
+wasm-bindgen-futures= "0.4.29"
 gloo-events = "0.1.1"
-awsm_web = { version = "0.0.13", features = ["tick", "webgl", "loaders", "audio"], default-features = false }
+awsm_web = { version = "0.32.3", features = ["tick", "webgl", "image", "loaders", "audio", "serde_iso"], default-features = false }
 wee_alloc = { version = "0.4.5", optional = true }
 wasm-logger = { version = "0.2.0", optional = true }
-cfg-if = "0.1.10"
-log = "0.4.8"
+cfg-if = "1.0.0"
+log = "0.4.14"
  
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
 # all the `std::fmt` and `std::panicking` infrastructure, so isn't great for
 # code size when deploying.
-console_error_panic_hook = { version = "0.1.6", optional = true }
+console_error_panic_hook = { version = "0.1.7", optional = true }
 
 
 [dependencies.web-sys]
-version = "0.3.35"
+version = "0.3.56"
 features = [
     "console",
     "MouseEvent",

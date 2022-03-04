@@ -8,6 +8,8 @@ A Rust/WASM/WebGL bunny bouncing test, built on [awsm](http://github.com/dakom/a
 
 ## [CLICK HERE](https://dakom.github.io/rust-bunnymark)
 
+By default it adds 100 bunnies per tick, but this can be overridden by appending `#NUM` to the url (where NUM is the number of bunnies to add per tick)
+
 # How does it compare?
 
 Of course Rust/WASM wins... gotta keep in mind though PIXI is an amazing and robust 2D framework. Awsm is only an opinionated but thin wrapper over webgl. So on the Rust side here there's no scene graph, no user-specified filters, no easy API for grouping textures, etc.
