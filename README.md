@@ -4,6 +4,8 @@
 
 A Rust/WASM/WebGL bunny bouncing test, built on [awsm](http://github.com/dakom/awsm/), for comparing to [PIXI](https://www.goodboydigital.com/pixijs/bunnymark/)
 
+The main branch and live demo uses explicit geometry without instancing, the `instancing` branch uses instancing
+
 # How to start?
 
 ## [CLICK HERE](https://dakom.github.io/rust-bunnymark)
