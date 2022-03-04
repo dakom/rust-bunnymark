@@ -1,13 +1,12 @@
-use super::bunny::{Bunny};
-use super::data::{Area};
-use super::config::{N_BUNNIES_PER_TICK};
+use super::bunny::Bunny;
+use super::data::Area;
+use super::config::N_BUNNIES_PER_TICK;
 use awsm_web::prelude::UnwrapExt;
 
 use awsm_web::webgl::{
     get_texture_size,
     WebGlTextureSource
 };
-use rand::prelude::ThreadRng;
 
 pub struct State {
     pub fps: u32,
@@ -68,15 +67,16 @@ impl State {
         self.instance_positions.resize(len * 2, 0.0);
     }
 
-    pub fn update(&mut self, rng: &mut ThreadRng) {
-        for (instance_idx, bunny) in self.bunnies.iter_mut().enumerate() {
+    pub fn update(&mut self) {
+        let positions = self.instance_positions.as_mut_slice();
+        for (mut instance_idx, bunny) in self.bunnies.iter_mut().enumerate() {
             //update bunny positions
-            bunny.update(self.stage_size, self.img_size, rng);
+            let (x,y) = bunny.update(self.stage_size, self.img_size);
 
-            let instance_idx = instance_idx * 2;
             //Set the instance data from bunny positions
-            self.instance_positions[instance_idx] = bunny.pos.x as f32;
-            self.instance_positions[instance_idx+1] = bunny.pos.y as f32;
+            instance_idx *= 2;
+            positions[instance_idx] = x;
+            positions[instance_idx+1] = y;
         }
     }
 }

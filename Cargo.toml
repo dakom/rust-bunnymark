@@ -11,8 +11,6 @@ lto = true
 opt-level = 's'
 
 [dependencies]
-rand = "0.8.5"
-getrandom = { version = "0.2.5", features = ["js"] }
 nalgebra = "0.30.1"
 wasm-bindgen = "0.2.79"
 js-sys = "0.3.56"

@@ -1,5 +1,3 @@
-use rand::prelude::*;
-
 #[derive(Debug, Clone, Copy)]
 pub struct Point {
     pub x: f64,
@@ -9,11 +7,7 @@ pub struct Point {
 impl Point {
 
     pub fn new_random() -> Self {
-        let mut rng = thread_rng();
-        let x: f64 = rng.gen(); // random number in range [0, 1)
-        let y: f64 = rng.gen(); // random number in range [0, 1)
-
-        Self { x, y }
+        Self { x: js_sys::Math::random(), y: js_sys::Math::random() }
     }
 }
 

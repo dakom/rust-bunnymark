@@ -1,5 +1,4 @@
 use super::data::{Point, Area};
-use rand::prelude::*;
 
 const START_GRAVITY:f64 = 0.75;
 
@@ -36,7 +35,7 @@ impl Bunny {
     }
 
     //movement is made to match https://github.com/pixijs/bunny-mark/blob/master/src/Bunny.js
-    pub fn update(&mut self, stage_size: Area, img_size:Area, rng: &mut ThreadRng) {
+    pub fn update(&mut self, stage_size: Area, img_size:Area) -> (f32, f32) {
         self.pos.x += self.speed.x;
         self.pos.y -= self.speed.y;
     
@@ -56,14 +55,14 @@ impl Bunny {
         if self.pos.y < 0.0 {
             self.speed.y *= -0.85;
             self.pos.y = 0.0;
-            let rand_bool:bool = rng.gen();
-            if rand_bool  {
-                let rand_float:f64 = rng.gen();
-                self.speed.y  -= rand_float * 6.0;
+            if js_sys::Math::random() > 0.5 {
+                self.speed.y  -= js_sys::Math::random() * 6.0;
             }
         } else if self.pos.y > bounds_top {
             self.speed.y = 0.0;
             self.pos.y = bounds_top;
         }
+
+        (self.pos.x as f32, self.pos.y as f32)
     }
 }

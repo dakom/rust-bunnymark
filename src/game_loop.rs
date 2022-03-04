@@ -1,16 +1,13 @@
-use super::state::{State};
-use super::hud::{Hud};
+use super::state::State;
+use super::hud::Hud;
 use super::renderer::SceneRenderer;
-use super::fps::{FpsCounter};
+use super::fps::FpsCounter;
 
-use std::rc::{Rc};
-use std::cell::{RefCell};
-use gloo_events::{EventListener};
-use rand::thread_rng;
+use std::rc::Rc;
+use std::cell::RefCell;
+use gloo_events::EventListener;
 use web_sys::{Window, EventTarget, Event};
 use awsm_web::tick::Raf;
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
 
 pub fn begin_loop(window:&Window, canvas:&EventTarget, mut renderer:SceneRenderer, state:Rc<RefCell<State>>, hud:Hud) -> Result<(), awsm_web::errors::Error> {
 
@@ -21,9 +18,7 @@ pub fn begin_loop(window:&Window, canvas:&EventTarget, mut renderer:SceneRendere
         let state = Rc::clone(&state);
         let mut fps_counter = FpsCounter::new(window.performance().unwrap());
 
-        let mut rng = thread_rng();
-
-        move |ts| {
+        move |_| {
             fps_counter.begin();
             let mut state = state.borrow_mut();
 
@@ -31,7 +26,7 @@ pub fn begin_loop(window:&Window, canvas:&EventTarget, mut renderer:SceneRendere
                 state.add_bunnies();
             }
 
-            state.update(&mut rng);
+            state.update();
 
             renderer.render(&state).unwrap();
 
