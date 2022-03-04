@@ -7,6 +7,7 @@ use awsm_web::webgl::{
     get_texture_size,
     WebGlTextureSource
 };
+use rand::prelude::ThreadRng;
 
 pub struct State {
     pub fps: u32,
@@ -67,10 +68,10 @@ impl State {
         self.instance_positions.resize(len * 2, 0.0);
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, rng: &mut ThreadRng) {
         for (instance_idx, bunny) in self.bunnies.iter_mut().enumerate() {
             //update bunny positions
-            bunny.update(self.stage_size, self.img_size);
+            bunny.update(self.stage_size, self.img_size, rng);
 
             let instance_idx = instance_idx * 2;
             //Set the instance data from bunny positions

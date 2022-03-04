@@ -36,7 +36,7 @@ impl Bunny {
     }
 
     //movement is made to match https://github.com/pixijs/bunny-mark/blob/master/src/Bunny.js
-    pub fn update(&mut self, stage_size: Area, img_size:Area) {
+    pub fn update(&mut self, stage_size: Area, img_size:Area, rng: &mut ThreadRng) {
         self.pos.x += self.speed.x;
         self.pos.y -= self.speed.y;
     
@@ -56,9 +56,9 @@ impl Bunny {
         if self.pos.y < 0.0 {
             self.speed.y *= -0.85;
             self.pos.y = 0.0;
-            let rand_bool:bool = thread_rng().gen();
+            let rand_bool:bool = rng.gen();
             if rand_bool  {
-                let rand_float:f64 = thread_rng().gen();
+                let rand_float:f64 = rng.gen();
                 self.speed.y  -= rand_float * 6.0;
             }
         } else if self.pos.y > bounds_top {
