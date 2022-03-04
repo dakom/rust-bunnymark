@@ -17,11 +17,9 @@ pub struct Area {
     pub height: u32 
 }
 
-pub const QUAD_UVS: [f32; 12] = [
+pub const QUAD_GEOM_UNIT: [f32; 8] = [
+    0.0, 1.0, // top-left
     0.0, 0.0, //bottom-left
-    0.0, 1.0, // left-top
-    1.0, 0.0, // right-bottom
-    1.0, 0.0, // right-bottom
-    0.0, 1.0, // left-top
-    1.0, 1.0, // right-top
+    1.0, 1.0, // top-right
+    1.0, 0.0, // bottom-right
 ];

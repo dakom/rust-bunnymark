@@ -56,7 +56,7 @@ pub fn start() -> Result<js_sys::Promise, JsValue> {
 
         let renderer = WebGl1Renderer::new(gl).map(|r| Rc::new(RefCell::new(r)))?;
 
-        let mut scene_renderer = SceneRenderer::new(Rc::clone(&renderer), &vertex, &fragment, &bunny_img)?;
+        let scene_renderer = SceneRenderer::new(Rc::clone(&renderer), &vertex, &fragment, &bunny_img)?;
 
         let on_resize = {
             let window = window.clone();
@@ -83,9 +83,6 @@ pub fn start() -> Result<js_sys::Promise, JsValue> {
             ]);
         }
 
-
-        state.borrow_mut().add_bunnies();
-        scene_renderer.update_uvs(&state.borrow()).unwrap();
 
         begin_loop(&window, &renderer.borrow().canvas, scene_renderer, state, hud)?;
 

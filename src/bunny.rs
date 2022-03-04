@@ -63,8 +63,6 @@ impl Bunny {
             self.pos.y = bounds_top;
         }
 
-        //self.pos.x = (stage_size.width as f64) / 2.0;
-        //self.pos.y = (stage_size.height as f64) / 2.0;
         (self.pos.x as f32, self.pos.y as f32)
     }
 }

@@ -14,8 +14,7 @@ pub struct State {
     pub adding_bunnies: bool,
     pub stage_size: Area,
     pub img_size: Area,
-    pub vertices: Vec<f32>,
-    pub uvs: Vec<f32>,
+    pub instance_positions: Vec<f32>,
     pub add_amount: usize,
 }
 
@@ -44,8 +43,7 @@ impl State {
             adding_bunnies: false,
             stage_size: Area { width: 0, height: 0},
             img_size: Area { width: img_width, height: img_height},
-            vertices: Vec::new(),
-            uvs: Vec::new(),
+            instance_positions: Vec::new(),
             add_amount: hash_amount.unwrap_or(N_BUNNIES_PER_TICK)
         }
     }
@@ -66,50 +64,19 @@ impl State {
             bunny
         }); 
 
-        // 2 coordinates * 6 vertices
-
-        //defaults for vertices are just all at 0,0
-        //will get updated in physics step
-        self.vertices.resize(len * 12, 0.0);
-
-        //all quads share the same uvs
-        //there might be a cleverer way of avoiding the repetition
-        //but that's what the instancing branch in the repo is for :P
-        for _ in 0..self.add_amount {
-            self.uvs.extend(&crate::data::QUAD_UVS)
-        }
-
+        self.instance_positions.resize(len * 2, 0.0);
     }
 
-    pub fn update_physics(&mut self) {
-        let vertices = self.vertices.as_mut_slice();
-        let w = self.img_size.width as f32; 
-        let h = self.img_size.height as f32; 
+    pub fn update(&mut self) {
+        let positions = self.instance_positions.as_mut_slice();
         for (mut instance_idx, bunny) in self.bunnies.iter_mut().enumerate() {
             //update bunny positions
             let (x,y) = bunny.update(self.stage_size, self.img_size);
 
             //Set the instance data from bunny positions
-            instance_idx *= 12;
-
-            //left-bottom
-            vertices[instance_idx] = x;
-            vertices[instance_idx+1] = y;
-            //left-top
-            vertices[instance_idx+2] = x;
-            vertices[instance_idx+3] = y+h;
-            //right-bottom
-            vertices[instance_idx+4] = x+w;
-            vertices[instance_idx+5] = y;
-            //right-bottom
-            vertices[instance_idx+6] = x+w;
-            vertices[instance_idx+7] = y;
-            //left-top
-            vertices[instance_idx+8] = x;
-            vertices[instance_idx+9] = y+h;
-            //right-top
-            vertices[instance_idx+10] = x+w;
-            vertices[instance_idx+11] = y+h;
+            instance_idx *= 2;
+            positions[instance_idx] = x;
+            positions[instance_idx+1] = y;
         }
     }
 }

@@ -1,10 +1,11 @@
+use super::data::{QUAD_GEOM_UNIT};
 use super::state::{State};
 
 use std::rc::Rc;
 use std::cell::RefCell;
 
 use web_sys::{HtmlImageElement};
-use nalgebra::{Matrix4, Vector3, Vector2, DimMul};
+use nalgebra::{Matrix4, Vector3};
 
 use awsm_web::webgl::{
     BufferMask,
@@ -33,18 +34,34 @@ pub struct SceneRenderer {
 struct SceneIds {
     program_id: Id,
     texture_id: Id,
-    tex_buffer_id: Id,
-    geom_buffer_id: Id
+    instance_id: Id,
 }
 impl SceneRenderer {
     pub fn new (webgl_renderer:Rc<RefCell<WebGl1Renderer>>, vertex:&str, fragment:&str, img:&HtmlImageElement) -> Result<Self, awsm_web::errors::Error> {
         let ids = {
             let mut renderer = webgl_renderer.borrow_mut();
+            //This demo is specifically using webgl1, which needs to register the extension
+            //Everything else is the same API as webgl2 :)
+            renderer.register_extension_instanced_arrays()?;
+
             //compile the shaders and get a program id
             let vertex_id = renderer.compile_shader(vertex, ShaderType::Vertex)?;
             let fragment_id = renderer.compile_shader(fragment, ShaderType::Fragment)?;
             let program_id = renderer.compile_program(&[vertex_id, fragment_id])?;
 
+            //create quad data and get a buffer id
+            let geom_id = renderer.create_buffer()?;
+
+            renderer.upload_buffer_to_attribute_name(
+                geom_id,
+                BufferData::new(
+                    &QUAD_GEOM_UNIT,
+                    BufferTarget::ArrayBuffer,
+                    BufferUsage::StaticDraw,
+                    ),
+                    "a_vertex",
+                    &AttributeOptions::new(2, DataType::Float),
+                    )?;
 
             //create texture data and get a texture id
             let texture_id = renderer.create_texture()?;
@@ -58,47 +75,15 @@ impl SceneRenderer {
                 &WebGlTextureSource::ImageElement(&img),
                 )?;
 
+            //create an instance buffer and get the id
+            let instance_id = renderer.create_buffer()?;
 
-            //buffer ids
-            let geom_buffer_id = renderer.create_buffer()?;
-            let tex_buffer_id = renderer.create_buffer()?;
-
-
-            SceneIds {program_id, texture_id, tex_buffer_id, geom_buffer_id}
+            SceneIds {program_id, texture_id, instance_id }
         };
 
         Ok(Self { renderer: webgl_renderer, ids} )
     }
 
-    pub fn update_uvs(&mut self, state:&State) -> Result<(), awsm_web::errors::Error> {
-        println!("{}", state.uvs.len());
-        let mut renderer = self.renderer.borrow_mut();
-        renderer.upload_buffer_to_attribute_name(
-            self.ids.tex_buffer_id,
-            BufferData::new(
-                &state.uvs,
-                BufferTarget::ArrayBuffer,
-                BufferUsage::DynamicDraw,
-                ),
-                "a_tex_uv",
-                &AttributeOptions::new(2, DataType::Float),
-                )?;
-        Ok(())
-    }
-    pub fn update_vertices(&mut self, state:&State) -> Result<(), awsm_web::errors::Error> {
-        let mut renderer = self.renderer.borrow_mut();
-        renderer.upload_buffer_to_attribute_name(
-            self.ids.geom_buffer_id,
-            BufferData::new(
-                &state.vertices,
-                BufferTarget::ArrayBuffer,
-                BufferUsage::DynamicDraw,
-                ),
-                "a_geom_vertex",
-                &AttributeOptions::new(2, DataType::Float),
-                )?;
-        Ok(())
-    }
     pub fn render(&mut self, state:&State) -> Result<(), awsm_web::errors::Error> {
         //if no bunnies, skip rendering
         if state.bunnies.len() == 0 {
@@ -106,7 +91,7 @@ impl SceneRenderer {
         }
 
         let mut renderer = self.renderer.borrow_mut();
-        let SceneIds {program_id, texture_id, ..} = self.ids;
+        let SceneIds {program_id, texture_id, instance_id, ..} = self.ids;
 
 
         //Clear the screen buffers
@@ -126,15 +111,27 @@ impl SceneRenderer {
         //enable texture
         renderer.activate_texture_for_sampler_name(texture_id, "u_sampler")?;
 
-        //Build our camera matrix (must cast to f32)
+        //Build our matrices (must cast to f32)
+        let scaling_mat = Matrix4::new_nonuniform_scaling(&Vector3::new(state.img_size.width as f32, state.img_size.height as f32, 0.0));
         let camera_mat = Matrix4::new_orthographic( 0.0, state.stage_size.width as f32, 0.0, state.stage_size.height as f32, 0.0, 1.0);
 
-        //Upload data to the GPU
+        //Upload them to the GPU
+        renderer.upload_uniform_mat_4_name("u_size", &scaling_mat.as_slice())?;
         renderer.upload_uniform_mat_4_name("u_camera", &camera_mat.as_slice())?;
 
 
+    //need the location for the attrib_divisor below
+        let loc = renderer.get_attribute_location_name("a_position")?;
+        renderer.upload_buffer( instance_id, BufferData::new(
+                &state.instance_positions,
+                BufferTarget::ArrayBuffer,
+                BufferUsage::StaticDraw,
+        ))?;
 
-        renderer.draw_arrays(BeginMode::Triangles, 0, (state.vertices.len() / 2) as u32);
+        renderer.activate_attribute_loc(loc, &AttributeOptions::new(2, DataType::Float));
+
+        renderer.vertex_attrib_divisor(loc, 1)?;
+        renderer.draw_arrays_instanced(BeginMode::TriangleStrip, 0, 4, state.bunnies.len() as u32)?;
 
         Ok(())
     }
