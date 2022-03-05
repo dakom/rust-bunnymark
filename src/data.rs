@@ -1,20 +1,20 @@
 #[derive(Debug, Clone, Copy)]
 pub struct Point {
-    pub x: f64,
-    pub y: f64
+    pub x: f32,
+    pub y: f32
 }
 
 impl Point {
 
     pub fn new_random() -> Self {
-        Self { x: js_sys::Math::random(), y: js_sys::Math::random() }
+        Self { x: js_sys::Math::random() as f32, y: js_sys::Math::random() as f32}
     }
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct Area {
-    pub width: u32,
-    pub height: u32 
+    pub width: f32,
+    pub height: f32 
 }
 
 pub const QUAD_GEOM_UNIT: [f32; 8] = [

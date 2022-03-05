@@ -17,7 +17,6 @@ js-sys = "0.3.56"
 wasm-bindgen-futures= "0.4.29"
 gloo-events = "0.1.1"
 awsm_web = { version = "0.32.3", features = ["tick", "webgl", "image", "loaders", "audio", "serde_iso"], default-features = false }
-wee_alloc = { version = "0.4.5", optional = true }
 wasm-logger = { version = "0.2.0", optional = true }
 cfg-if = "1.0.0"
 log = "0.4.14"
@@ -47,5 +46,5 @@ features = [
 
 ]
 [features]
-default = ["wee_alloc"]
-dev = ["wee_alloc", "wasm-logger", "console_error_panic_hook"]
+default = []
+dev = ["wasm-logger", "console_error_panic_hook"]

@@ -41,42 +41,46 @@ impl State {
             fps: 0, 
             bunnies: Vec::new(), 
             adding_bunnies: false,
-            stage_size: Area { width: 0, height: 0},
-            img_size: Area { width: img_width, height: img_height},
+            stage_size: Area { width: 0f32, height: 0f32},
+            img_size: Area { width: img_width as f32, height: img_height as f32},
             instance_positions: Vec::new(),
             add_amount: hash_amount.unwrap_or(N_BUNNIES_PER_TICK)
         }
     }
 
     pub fn resize(&mut self, width: u32, height: u32) {
-        self.stage_size = Area { width, height };
+        self.stage_size = Area { width: width as f32, height: height as f32 };
     }
 
     pub fn add_bunnies(&mut self) {
-        let mut count = self.bunnies.len();
-        let len = count + self.add_amount;
         let stage_size = self.stage_size;
         let img_size = self.img_size;
 
-        self.bunnies.resize_with(len, | | {
-            let bunny = Bunny::new(count, stage_size, img_size);
-            count += 1;
-            bunny
-        }); 
 
-        self.instance_positions.resize(len * 2, 0.0);
+        for i in 0..self.add_amount {
+            let (bunny, (x,y)) = Bunny::new(i, stage_size, img_size);
+            self.bunnies.push(bunny);
+            self.instance_positions.push(x);
+            self.instance_positions.push(y);
+        }
+
     }
 
     pub fn update(&mut self) {
-        let positions = self.instance_positions.as_mut_slice();
-        for (mut instance_idx, bunny) in self.bunnies.iter_mut().enumerate() {
+        let mut positions = self.instance_positions.as_mut_slice();
+        for (instance_idx, bunny) in self.bunnies.iter_mut().enumerate() {
             //update bunny positions
-            let (x,y) = bunny.update(self.stage_size, self.img_size);
+            let (mut pos_x, mut pos_y) = get_point_unchecked(&mut positions, instance_idx * 2);
+            bunny.update(self.stage_size, self.img_size, &mut pos_x, &mut pos_y);
 
-            //Set the instance data from bunny positions
-            instance_idx *= 2;
-            positions[instance_idx] = x;
-            positions[instance_idx+1] = y;
         }
+    }
+}
+
+fn get_point_unchecked(s: &mut [f32], offset: usize) -> (&mut f32, &mut f32) {
+    let ptr = s.as_mut_ptr();
+
+    unsafe {
+        (&mut *ptr.add(offset), &mut *ptr.add(offset + 1))
     }
 }
